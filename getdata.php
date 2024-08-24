@@ -1,5 +1,6 @@
 <?php
 session_start();
+date_default_timezone_set('Asia/Kolkata');
 
 // Check if form is submitted 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -545,7 +546,25 @@ function getDeliveryScheduleData()
 {
     $ds_res = getCustomAPIData('FetchDeliveryScheduleDetails' ,$_SESSION['email']);
     $ds_res_data = json_decode($ds_res, true);
+    captureLogs("Delivery_Schedule");
     return $ds_res_data;
+}
+
+function captureLogs($action){
+    $reportName = "machinemaze-project-management";
+    $formName = "Customer_Portal_Logs";
+    $current_time = date('d-M-Y H:i:s');
+    $addData = array(
+        "data" => array(
+            "Page" => $action,
+            "Customer_Email" => $_SESSION['email'],
+            "Date_Time" => $current_time
+        )
+    );
+    $json_data = json_encode($addData);
+    $createLog = updateLogRecord($reportName, $formName, $json_data);
+    echo json_encode($createLog);
+    return $createLog;
 }
 /** Delivery Schedule Fetch Data - end */
 
